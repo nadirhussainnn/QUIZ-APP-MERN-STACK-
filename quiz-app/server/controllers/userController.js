@@ -15,9 +15,9 @@ const register=async(req, res)=>{
         const existingUser=await User.findOne({username})
         if(!existingUser){
 
-            image.mv(path.resolve(__dirname,'../public/users',username+'-'+file.name, (error)=>{
+            await image.mv(path.resolve(__dirname,'../public/users',username+'-'+image.name), async (error)=>{
                 if(!error){
-                    const user=await User.create({...req.body})
+                    const user=await User.create({...req.body, image:username+"-"+image.name})
                     if(user){
                         res.status(200).send({success:true, msg:'Created SUccessfully', data:user})
                     }    
@@ -25,7 +25,7 @@ const register=async(req, res)=>{
                         res.status(400).send({success:false, msg:'Failed to create'})
                     }
                 }
-            }))
+            })
         }
         else{
             res.status(400).send({success:false, msg:'User already exists'})
@@ -46,10 +46,10 @@ const login=async(req, res)=>{
         const user=await User.findOne({username})
 
         if(user){
-
-            const isPasswordMatched=await bcrypt.compare(user.password,password)
+            const isPasswordMatched=await bcrypt.compare(password, user.password)
             if(isPasswordMatched){
-                const token=await jwt.sign({username:user.username}, process.env.JWT_SECRET_KEY,{expiresIn:60*60*24})
+
+                const token=jwt.sign({username:user.username}, process.env.JWT_SECRET_KEY,{expiresIn:60*60*24})
                 res.status(200).send({success:true, msg:'Fetched successfully', token:token, data:user})
             }
             else{

@@ -5,20 +5,28 @@ const dotenv=require('dotenv')
 const bodyParser=require('body-parser')
 const fileUpload=require('express-fileupload')
 const path=require('path')
+const user_route = require('./routes/userRoute')
+const quiz_route = require('./routes/quizRoute')
 
 dotenv.config()
 const app=express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
+app.use(cors())
 app.use(fileUpload())
 app.use(express.static(path.resolve(__dirname,'/public')))
 
-const DB=process.env.DB_URL
-
-mongoose.connect(DB).then(connection=>{
-    console.log(`Connected to ${DB}`)
+mongoose.connect(process.env.DB_URL).then(()=>{
+    console.log('Connected')
+}).catch(error=>{
+    console.log(error)
 })
+
+app.use('/', user_route)
+app.use('/', quiz_route)
+
+app.use('*',(req, res)=>{res.send('Page Not found')})
 
 module.exports=app
 

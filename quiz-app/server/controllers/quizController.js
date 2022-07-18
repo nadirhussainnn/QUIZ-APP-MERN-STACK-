@@ -5,14 +5,14 @@ const createQuiz=async(req, res)=>{
     console.log(`Create Quiz API`)
     
     const {subject, questions, createdBy}=req.body
-    //questions are along with options
+    //questions are along with options, array like [{text:'Hello',options:['A','B','C','D']}]
 
     try{
 
         const user=await User.findById(createdBy)
 
         if(user){
-            const quiz=await Quiz.create({questions, createdBy})
+            const quiz=await Quiz.create({subject, questions, createdBy})
             if(quiz){
                 res.status(200).send({success:true, msg:'Created Quiz Successfully', data:quiz})
             }
@@ -49,4 +49,8 @@ const attemptQuiz=async(req, res)=>{
     catch(error){
         res.status(400).send(error.message)
     }
+}
+
+module.exports={
+    createQuiz, attemptQuiz
 }
